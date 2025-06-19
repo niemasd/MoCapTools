@@ -114,3 +114,7 @@ class BVH:
                     # parse frame line
                     else:
                         self.frames.append([float(v) for v in l.strip().split()])
+
+    # string representation of this `BVH` object
+    def __str__(self):
+        return "BVH file with %d frames and %ss frame time = %ss total duration" % (len(self.frames), self.frame_time, self.frame_time * len(self.frames))
