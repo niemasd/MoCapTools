@@ -4,6 +4,7 @@ Biovision Hierarchical Data (BVH)
 '''
 
 # imports
+from gzip import open as gopen
 from mocaptools.common import DEFAULT_BUFSIZE, open_file
 
 # class to represent joint nodes ("ROOT" and "JOINT") in a BVH "HIERARCHY"
@@ -118,3 +119,18 @@ class BVH:
     # string representation of this `BVH` object
     def __str__(self):
         return "BVH file with %d frames and %ss frame time = %ss total duration" % (len(self.frames), self.frame_time, self.frame_time * len(self.frames))
+
+    # save a `BVH` object to a file-like
+    def save(self, out_file):
+        # open output file if given a filename
+        if isinstance(out_file, str):
+            if out_file.endswith('.gz'):
+                out_file = gopen(out_file, 'wt')
+            else:
+                out_file = open(out_file, 'w')
+
+        # write this `BVH` to output file
+        raise NotImplementedError("TODO WRITE BVH TO out_file")
+
+        # close output file
+        out_file.close()
