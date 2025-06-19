@@ -22,6 +22,10 @@ class Joint:
         if self.parent is not None:
             self.parent.children.append(self)
 
+    # string representation of this `Joint` object
+    def __str__(self):
+        return 'JOINT: name = %s, # children = %d, offset = (%s), channels = [%s]' % (self.name, len(self.children), ', '.join(('%f' % v) for v in self.offset), ', '.join(self.channels))
+
 # class to represent end sites ("End Site") in a BVH "HIERARCHY"
 class EndSite:
     # initialize an `EndSite` object
@@ -29,6 +33,10 @@ class EndSite:
         self.parent = parent
         self.offset = None
         self.parent.children.append(self)
+
+    # string representation of this `EndSite` object
+    def __str__(self):
+        return 'End Site: offset = (%s)' % ', '.join(('%f' % v) for v in self.offset)
 
 # class to represent BVH files
 class BVH:
@@ -118,7 +126,17 @@ class BVH:
 
     # string representation of this `BVH` object
     def __str__(self):
-        return "BVH file with %d frames and %ss frame time = %ss total duration" % (len(self.frames), self.frame_time, self.frame_time * len(self.frames))
+        return "BVH: # frames = %d, frame time = %ss, total duration = %ss" % (len(self.frames), self.frame_time, self.frame_time * len(self.frames))
+
+    # iterate over the joints ("ROOT" and "JOINT") of this `BVH` object
+    def iter_joints(self):
+        joints = [self.root]
+        while len(joints) != 0:
+            curr_joint = joints.pop()
+            yield curr_joint
+            if hasattr(curr_joint, 'children'):
+                for child in curr_joint.children[::-1]:
+                    joints.append(child)
 
     # save a `BVH` object to a file-like
     def save(self, out_file):
