@@ -24,7 +24,11 @@ class Joint:
 
     # string representation of this `Joint` object
     def __str__(self):
-        return 'JOINT: name = %s, # children = %d, offset = (%s), channels = [%s]' % (self.name, len(self.children), ', '.join(('%f' % v) for v in self.offset), ', '.join(self.channels))
+        if self.parent is None:
+            prefix = 'ROOT'
+        else:
+            prefix = 'JOINT'
+        return '%s: name = %s, # children = %d, offset = (%s), channels = [%s]' % (prefix, self.name, len(self.children), ', '.join(('%f' % v) for v in self.offset), ', '.join(self.channels))
 
 # class to represent end sites ("End Site") in a BVH "HIERARCHY"
 class EndSite:
