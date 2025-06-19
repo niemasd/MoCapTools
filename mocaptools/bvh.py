@@ -6,6 +6,7 @@ Biovision Hierarchical Data (BVH)
 # imports
 from gzip import open as gopen
 from mocaptools.common import DEFAULT_BUFSIZE, open_file
+import matplotlib.pyplot as plt
 
 # class to represent joint nodes ("ROOT" and "JOINT") in a BVH "HIERARCHY"
 class Joint:
@@ -133,14 +134,22 @@ class BVH:
         return "BVH: # frames = %d, frame time = %ss, total duration = %ss" % (len(self.frames), self.frame_time, self.frame_time * len(self.frames))
 
     # iterate over the joints ("ROOT" and "JOINT") of this `BVH` object
-    def iter_joints(self):
+    def iter_joints(self, include_root=True, include_joints=True, include_endsites=True):
         joints = [self.root]
         while len(joints) != 0:
             curr_joint = joints.pop()
-            yield curr_joint
-            if hasattr(curr_joint, 'children'):
+            if isinstance(curr_joint, Joint):
+                if curr_joint.parent is None:
+                    if include_root:
+                        yield curr_joint
+                else:
+                    if include_joints:
+                        yield curr_joint
                 for child in curr_joint.children[::-1]:
                     joints.append(child)
+            else:
+                if include_endsites:
+                    yield curr_joint
 
     # save a `BVH` object to a file-like
     def save(self, out_file):
@@ -186,3 +195,7 @@ class BVH:
 
         # close output file
         out_file.close()
+
+    # plot this `BVH` animation
+    def plot(self):
+        raise NotImplementedError("TODO IMPLEMENT BVH PLOTTING")

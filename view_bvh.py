@@ -22,3 +22,4 @@ if __name__ == "__main__":
     bvh = BVH(argv[1])
     print(bvh)
     print_node(bvh.root)
+    bvh.plot()
