@@ -92,7 +92,7 @@ class BVH:
 
                     # parse "CHANNELS" line
                     elif l.startswith('CHANNELS'):
-                        curr_node.channels = [v.strip() for v in l[8:].strip().split()]
+                        curr_node.channels = [v.strip() for v in l[8:].strip().split()[1:]]
 
                     # done parsing "HIERARCHY" section; move to "MOTION" section
                     elif l == 'MOTION':
@@ -129,8 +129,38 @@ class BVH:
             else:
                 out_file = open(out_file, 'w')
 
-        # write this `BVH` to output file
-        raise NotImplementedError("TODO WRITE BVH TO out_file")
+        # helper recursive function for writing ROOT, JOINT, and End Site nodes
+        def write_node(curr_node, curr_indent):
+            child_indent = curr_indent + '\t'
+            out_file.write(curr_indent)
+            if isinstance(curr_node, Joint):
+                if curr_node.parent is None:
+                    out_file.write('ROOT ')
+                else:
+                    out_file.write('JOINT ')
+                out_file.write(curr_node.name)
+            else:
+                out_file.write('End Site')
+            out_file.write('\n%s{\n' % curr_indent)
+            if hasattr(curr_node, 'offset'):
+                out_file.write('%sOFFSET %s\n' % (child_indent, ' '.join(('%f' % v) for v in curr_node.offset)))
+            if hasattr(curr_node, 'channels'):
+                out_file.write('%sCHANNELS %d %s\n' % (child_indent, len(curr_node.channels), ' '.join(curr_node.channels)))
+            if hasattr(curr_node, 'children'):
+                for child in curr_node.children:
+                    write_node(child, child_indent)
+            out_file.write('%s}\n' % curr_indent)
+
+        # write BVH "HIERARCHY" section
+        out_file.write('HIERARCHY\n')
+        write_node(self.root, '')
+
+        # write BVH "MOTION" section
+        out_file.write('MOTION\n')
+        out_file.write('Frames: %d\n' % len(self.frames))
+        out_file.write('Frame Time: %f\n' % self.frame_time)
+        for frame in self.frames:
+            out_file.write(' '.join(('%f' % v) for v in frame) + '\n')
 
         # close output file
         out_file.close()
